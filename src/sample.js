@@ -16,15 +16,15 @@ function App() {
   const [turns, setTurns] = useState(0);
   const [choiceOne, setChoiceOne] = useState(null);
   const [choiceTwo, setChoiceTwo] = useState(null);
-  const [disabled, setDisabled] = useState(false);
 
   const shuffleCards = () => {
-    const shuffleCards = [...cardImages, ...cardImages]
+    const shuffledCards = [...cardImages, ...cardImages]
       .sort(() => Math.random() - 0.5)
       .map((card) => ({ ...card, id: Math.random() }));
+
     setChoiceOne(null);
     setChoiceTwo(null);
-    setCards(shuffleCards);
+    setCards(shuffledCards);
     setTurns(0);
   };
 
@@ -34,40 +34,33 @@ function App() {
 
   useEffect(() => {
     if (choiceOne && choiceTwo) {
-      setDisabled(true);
       if (choiceOne.src === choiceTwo.src) {
-        setCards((prevCards) => {
-          return prevCards.map((card) => {
-            if (card.src === choiceOne.src) {
-              return { ...card, matched: true };
-            } else {
-              return card;
-            }
-          });
-        });
+        setCards((prevCards) =>
+          prevCards.map((c) =>
+            c.src === choiceOne.src ? { ...c, matched: true } : c
+          )
+        );
         resetTurn();
       } else {
         setTimeout(() => resetTurn(), 1000);
       }
     }
   }, [choiceOne, choiceTwo]);
-  console.log(cards);
 
   const resetTurn = () => {
     setChoiceOne(null);
     setChoiceTwo(null);
     setTurns((prevTurns) => prevTurns + 1);
-    setDisabled(false);
   };
-  useEffect(()=>{
-    shuffleCards()
-  },[])
+
+  useEffect(() => {
+    shuffleCards();
+  }, []);
 
   return (
     <div className="App">
       <h1>Magic Match</h1>
       <button onClick={shuffleCards}>New Game</button>
-
       <div className="card-grid">
         {cards.map((card) => (
           <SingleCard
@@ -75,11 +68,10 @@ function App() {
             card={card}
             handleChoice={handleChoice}
             flipped={card === choiceOne || card === choiceTwo || card.matched}
-            disabled={disabled}
           />
         ))}
       </div>
-      <p>Turns : {turns}</p>
+      <p>Turns: {turns}</p>
     </div>
   );
 }
